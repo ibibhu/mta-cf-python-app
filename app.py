@@ -93,7 +93,7 @@ def call_destination_service_api(uri, token):
 
 def call_odata_service(destination, token):
     """Call the OData service via the destination."""
-    odata_url = destination.get('URL') +  "?$skip=0&$top=1&$format=json"
+    odata_url = destination.get('URL') +  "PurchaseOrders?$skip=0&$top=1&$format=json"
     auth_type = destination.get('Authentication')
     
     headers = {'Authorization': f'Bearer {token}'}  # For Bearer token based authentication
