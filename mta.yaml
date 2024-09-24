@@ -1,0 +1,31 @@
+_schema-version: "3.1"
+ID: my-python-odata-app
+version: 1.0.0
+
+modules:
+  - name: python-app
+    type: python
+    path: .
+    parameters:
+      memory: 256M
+      random-route: true
+      disk-quota: 512M
+      buildpack: python_buildpack
+    requires:
+      - name: destination-service
+      - name: xsuaa-service
+
+resources:
+  - name: destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+      service-name: my-destination-instance
+
+  - name: xsuaa-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      service-name: my-xsuaa-instance
