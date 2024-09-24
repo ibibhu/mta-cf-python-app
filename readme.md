@@ -157,6 +157,55 @@ Copy the values for clientid, clientsecret, and url from the output, and populat
 - **Testing**: Write unit tests for critical components of the application.
 - **Documentation**: Expand the documentation to include more detailed usage instructions.
 
+## Create Destination for SAP Gateway Demo System
+
+### Create an Account on the SAP Gateway Demo System
+
+To connect your SAP Business Technology Platform (BTP) application with the SAP Gateway Demo System, you first need to create an account. Follow the steps in the [SAP Gateway Demo System Tutorial](https://developers.sap.com/tutorials/gateway-demo-signup.html) to sign up and set up your account.
+
+### Connect SAP BTP to Your SAP Gateway Demo System Account (ES5)
+
+#### Prerequisites
+- You have created an account in SAP BTP.
+- You have created a user account on the SAP Gateway Demo System (ES5).
+
+### Create Destination to SAP Gateway Demo System
+
+1. **Navigate to Destinations**:
+   - In the SAP BTP cockpit, go to the left navigation panel, select **Connectivity**, and then click on **Destinations**.
+
+2. **Add Destination Properties**:
+   - Fill in the following fields:
+   
+   | Field               | Value                                            |
+   |---------------------|--------------------------------------------------|
+   | Name                | ES5 (or `<unique id>_ES5` for shared subaccounts) |
+   | Type                | HTTP                                             |
+   | Description         | SAP Gateway ES5                                 |
+   | URL                 | https://sapes5.sapdevcenter.com                |
+   | Proxy Type          | Internet                                        |
+   | Authentication      | BasicAuthentication                             |
+   | User Name           | Your ES5 Gateway user                           |
+   | Password            | Your ES5 Gateway password                        |
+
+   - Ensure that the **Use default JDK truststore** checkbox is checked.
+
+3. **Additional Properties**:
+   - Click **New Property** to add the following properties:
+
+   | Field               | Value                                            |
+   |---------------------|--------------------------------------------------|
+   | WebIDEEnabled       | true                                            |
+   | WebIDESystem        | Gateway                                         |
+   | WebIDEUsage         | odata_abap,dev_abap                            |
+   | sap-platform        | ABAP (manually enter)                          |
+   | sap-client          | 002                                             |
+   | HTML5.DynamicDestination | true                                      |
+
+
+For detailed instructions, please refer to the full tutorial on [SAP Gateway Connection](https://developers.sap.com/tutorials/cp-portal-cloud-foundry-gateway-connection.html).
+
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue to discuss potential changes.

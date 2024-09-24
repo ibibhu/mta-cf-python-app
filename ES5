@@ -1,0 +1,13 @@
+Description=SAP Gateway ES5
+Type=HTTP
+sap-platform=ABAP
+HTML5.DynamicDestination=true
+Authentication=BasicAuthentication
+WebIDEUsage=odata_abap,dev_abap
+Name=ES5
+WebIDEEnabled=true
+URL=https\://sapes5.sapdevcenter.com/sap/opu/odata/sap/SEPMRA_PO_APV/
+ProxyType=Internet
+sap-client=002
+User=S0025964944
+WebIDESystem=Gateway
