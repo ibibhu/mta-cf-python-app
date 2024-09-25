@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 from dotenv import load_dotenv
 
 # Load environment variables from the .env file
@@ -9,6 +9,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# Constants
+TOKEN_PATH = "/oauth/token"
+DESTINATION_PATH = "/destination-configuration/v1/subaccountDestinations"
 
 @app.route('/destinations')
 def list_destinations():
@@ -17,30 +20,35 @@ def list_destinations():
         destinations = get_destination_details(token)
         return jsonify(destinations), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return handle_error(e)
 
-# Endpoint to retrieve data from the OData service via Destination service
-@app.route('/odata')
-def get_odata_data():
+@app.route('/odata/<resource>')
+def get_odata_data(resource):
     try:
         # Step 1: Get access token from Destination service
         token = get_access_token()
         
         # Step 2: Fetch destination details from the binding
         destination = get_destination_details(token)
+        odata_url = construct_odata_url(destination, resource)
         
         # Step 3: Call OData service via destination
-        odata_response = call_odata_service(destination, token)
-        
-        return jsonify(odata_response), 200
+        odata_response = call_odata_service(odata_url, token, destination)
+
+        # Return the raw response as it is
+        return Response(odata_response.content, content_type=odata_response.headers['Content-Type'])
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return handle_error(e)
+
+def handle_error(e):
+    """Handles errors and returns a JSON response."""
+    return jsonify({"error": str(e)}), 500
 
 def get_access_token():
     """Fetch OAuth token from the Destination service using credentials from VCAP_SERVICES."""
     client_id = os.getenv('CLIENT_ID')
     client_secret = os.getenv('CLIENT_SECRET')
-    token_url = os.getenv('TOKEN_URL') + "/oauth/token"  # Append /oauth/token for the token endpoint
+    token_url = os.getenv('TOKEN_URL') + TOKEN_PATH  # Append /oauth/token for the token endpoint
 
     # OAuth token request
     data = {
@@ -73,7 +81,6 @@ def get_destination_details(token):
     
     # Assuming we want the first destination service instance
     destination_instance = destination_service[0]['credentials']
-    
     uri = destination_instance.get('uri')
     
     # Call the Destination service REST API to fetch destinations
@@ -86,17 +93,21 @@ def get_destination_details(token):
 
 def call_destination_service_api(uri, token):
     """Call the Destination service REST API to get the list of destinations."""
-    response = requests.get(f"{uri}/destination-configuration/v1/subaccountDestinations", 
+    response = requests.get(f"{uri}{DESTINATION_PATH}", 
                             headers={'Authorization': f'Bearer {token}'})
     response.raise_for_status()
     return response.json()
 
-def call_odata_service(destination, token):
+def construct_odata_url(destination, resource):
+    """Construct the OData URL based on the destination and requested resource."""
+    base_url = destination.get('URL')
+    return f"{base_url}{resource}"
+
+def call_odata_service(odata_url, token, destination):
     """Call the OData service via the destination."""
-    odata_url = destination.get('URL') +  "PurchaseOrders?$skip=0&$top=1&$format=json"
     auth_type = destination.get('Authentication')
     
-    headers = {'Authorization': f'Bearer {token}'}  # For Bearer token based authentication
+    headers = {'Authorization': f'Bearer {token}'}
 
     if auth_type == "BasicAuthentication":
         username = destination.get('User')
@@ -106,7 +117,7 @@ def call_odata_service(destination, token):
         response = requests.get(odata_url, headers=headers)
     
     response.raise_for_status()
-    return response.json()
+    return response
 
 @app.route('/')
 def home():
