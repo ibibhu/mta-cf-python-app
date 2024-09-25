@@ -128,9 +128,10 @@ my-flask-app/
 
 Here is an example of the variables you should include in your `.env` file:
 
-CLIENT_ID= 
-CLIENT_SECRET= 
-TOKEN_URL=
+CLIENT_ID=<clientid> 
+CLIENT_SECRET=<clientsecret> 
+TOKEN_URL=<url: https://xxxx.authentication.us10.hana.ondemand.com>
+DESTINATION_NAME=< Destination name i.e ES5>
 
 
 ### Explanation of Variables
@@ -138,6 +139,7 @@ TOKEN_URL=
 - **CLIENT_ID**: The client ID used for authenticating with the Destination service.
 - **CLIENT_SECRET**: The client secret associated with the client ID for authentication.
 - **TOKEN_URL**: The URL of the OAuth token endpoint from which to obtain an access token.
+- **DESTINATION_NAME**: The destination name as created in sub account.
 
 ### Where to Get Values
 

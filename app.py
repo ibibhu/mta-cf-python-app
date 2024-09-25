@@ -13,7 +13,7 @@ app = Flask(__name__)
 TOKEN_PATH = "/oauth/token"
 DESTINATION_PATH = "/destination-configuration/v1/subaccountDestinations"
 
-@app.route('/destinations')
+@app.route('/destination')
 def list_destinations():
     try:
         token = get_access_token()
@@ -64,6 +64,12 @@ def get_access_token():
 
 def get_destination_details(token):
     """Fetch destination details from the binding."""
+    # Get the destination name from the .env file
+    destination_name = os.getenv('DESTINATION_NAME')
+    
+    if not destination_name:
+        raise Exception("DESTINATION_NAME environment variable is not set")
+
     # Get the VCAP_SERVICES environment variable
     vcap_services = os.getenv('VCAP_SERVICES')
     
@@ -85,11 +91,17 @@ def get_destination_details(token):
     
     # Call the Destination service REST API to fetch destinations
     destinations = call_destination_service_api(uri, token)
-    
+
     if not destinations:
         raise Exception("No destinations found")
-    
-    return destinations[0]  # Returning the first destination for simplicity
+
+    # Filter the destinations based on the destination name from the .env file
+    filtered_destination = next((dest for dest in destinations if dest['Name'] == destination_name), None)
+
+    if not filtered_destination:
+        raise Exception(f"Destination with name '{destination_name}' not found")
+
+    return filtered_destination  # Return the filtered destination instance
 
 def call_destination_service_api(uri, token):
     """Call the Destination service REST API to get the list of destinations."""
